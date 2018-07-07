@@ -31,6 +31,16 @@ def HessianMatrixFunction(_class_1, _class_2, _matrixItem, _lambda):
 
     return result
 
+def MeasuringError(_matriksHessian, _alpha):
+    print("Function is not done yet")
+
+    # Mencari nilai error data ke-i
+    # Aplha belum diketahui diambil dari mana
+    # Di paper Aplha di set 0.5
+    # Output dari nilai error tidak berupa matrix
+    # Nilai Error = Sigma j == 1 hingga l (alpha ke-j * setiap hessian matrix)
+
+
 def KernelRBF(_sentimentList, _valueOfSentiment):
     
     newValueOfMatrix = []
@@ -50,8 +60,8 @@ def KernelRBF(_sentimentList, _valueOfSentiment):
 
 def main():
     
-    vectorOfSentiment, valueOfSentiment = ReadCSV('Result/TF_IDF.csv')
-    hessianMatrix = KernelRBF(vectorOfSentiment, valueOfSentiment)
+    vectorOfOpinion, valueOfSentiment = ReadCSV('Result/TF_IDF.csv')
+    hessianMatrix = KernelRBF(vectorOfOpinion, valueOfSentiment)
     # print(valueOfSentiment)
 
     print(hessianMatrix)
