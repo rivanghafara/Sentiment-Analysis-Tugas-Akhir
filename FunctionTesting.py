@@ -12,6 +12,7 @@ e = [0.9, 0.3, 310, 61, 58, 7, 3.4, 0.9]
 
 sentiment = [-1, 1, 1, 1, -1]
 
+listTemp = []
 
 listAll.append(a)
 listAll.append(b)
@@ -23,34 +24,10 @@ listAll.append(e)
 listAll = np.array(listAll)
 listATranspose = listAll.transpose()
 
-rbfMatrix = listAll.dot(listATranspose)
+# rbfMatrix = listAll.dot(listATranspose)
 
-print(rbfMatrix)
-# print(len(rbfMatrix))
+for i, var in enumerate(listATranspose):
+    listTemp.append(var)
 
-
-def Hessian(_class_1, _class_2, _matrixItem, _lambda):
-    result = (_class_1 * _class_2) * _matrixItem + math.pow(_lambda, 2)
-
-    return result
-
-
-newList = []
-
-
-for i in range(len(rbfMatrix)):
-    
-    tempList = []
-    for j, var in enumerate(rbfMatrix[i]):
-        var = Hessian(sentiment[i], sentiment[j], var, 0.5)
-        print(var)
-        tempList.append(var)
-    print("="*100)
-    newList.insert(i,tempList)
-    # print(newList)
-
-
-newList = np.array(newList)
-print(newList)
-
-print("="*100)
+print(listATranspose)
+print(listTemp[0])

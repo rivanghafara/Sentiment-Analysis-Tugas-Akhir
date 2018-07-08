@@ -179,7 +179,7 @@ def TF_IDF(dataTF, dataIDF, tempWord, valueOfSentiment):
 
 def main():
     startTime = time.time()
-    GetExtraction('Dataset-Training/Dataset-Training-100-New.csv')
+    GetExtraction('Dataset-Training/Dataset-Training-5000.csv')
     print("--- %s seconds ---" % (time.time() - startTime))
 
 

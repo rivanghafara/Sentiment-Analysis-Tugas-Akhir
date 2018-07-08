@@ -1,6 +1,11 @@
 import csv
 import numpy as np
 import math
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn import datasets
+
+from sklearn import svm
 
 def ReadCSV(_filename):
     
@@ -26,44 +31,40 @@ def ReadCSV(_filename):
 
     return sentimentList, valueOfSentiment
 
-def HessianMatrixFunction(_class_1, _class_2, _matrixItem, _lambda):
-    result = (_class_1 * _class_2) * _matrixItem + (math.pow(_lambda, 2))
+# def HessianMatrixFunction(_class_1, _class_2, _matrixItem, _lambda):
+#     result = (_class_1 * _class_2) * _matrixItem + (math.pow(_lambda, 2))
 
-    return result
+#     return result
 
-def MeasuringError(_matriksHessian, _alpha):
-    print("Function is not done yet")
-
-    # Mencari nilai error data ke-i
-    # Aplha belum diketahui diambil dari mana
-    # Di paper Aplha di set 0.5
-    # Output dari nilai error tidak berupa matrix
-    # Nilai Error = Sigma j == 1 hingga l (alpha ke-j * setiap hessian matrix)
-
-
-def KernelRBF(_sentimentList, _valueOfSentiment):
+# def KernelRBF(_valueOfSentiment, _gamma):
     
-    newValueOfMatrix = []
-    transposeOfSentiment = _sentimentList.transpose()    
-    matrixGenerate = _sentimentList.dot(transposeOfSentiment)
-    
-    for i in range(len(matrixGenerate)):
-        tempList = []
-        for j, var in enumerate(matrixGenerate[i]):
-            var = HessianMatrixFunction(_valueOfSentiment[i], _valueOfSentiment[j], var, 0.5)
-            tempList.append(var)
-        newValueOfMatrix.insert(i, tempList)
-
-    newValueOfMatrix = np.array(newValueOfMatrix)
-
-    return newValueOfMatrix
+   
 
 def main():
-    
-    vectorOfOpinion, valueOfSentiment = ReadCSV('Result/TF_IDF.csv')
-    hessianMatrix = KernelRBF(vectorOfOpinion, valueOfSentiment)
-    # print(valueOfSentiment)
 
-    print(hessianMatrix)
+    vectorOfOpinion, valueOfSentiment = ReadCSV('Result/TF_IDF.csv')
+    # print(vectorOfOpinion.shape)
+    xTrain, xTest, yTrain, yTest = train_test_split(vectorOfOpinion, valueOfSentiment, test_size=0.1, random_state=0)
+
+    # print(xTrain.shape, xTest.shape)
+    # print("="*100)
+    # print(yTrain.shape, yTest.shape)
+
+    clf = svm.SVC(kernel='linear', C=1).fit(xTrain, yTrain)
+    scores = cross_val_score(clf, xTrain, yTrain, cv=10)
+    # print(iris.data)
+    # print("="*100)
+    # print(iris.target)
+    # print(xTrain)
+    # print("="*100)
+    # print(xTest)
+    # print("="*100)
+    # print(yTrain)
+    # print("="*100)
+    # print(yTest)
+    # print(valueOfSentiment[89:])
+
+    print(clf.score(xTest, yTest))
+    print(scores)
 
 main()
