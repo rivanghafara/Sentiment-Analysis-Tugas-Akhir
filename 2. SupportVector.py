@@ -42,31 +42,50 @@ def MeasuringAlpha(_matriksHessian, _alpha, _gamma, C):
     # Output dari nilai error berupa vektor sebanyak tanggapan
     
     _listOfError = []
-    _listOfDeltaAlpha = []
-    _newAlpha = []
-    temp = 0
-    x = 0
+    _listOfNewAlpha = []
+    _listofAlpha = []
+    _deltaAlpha = []
+
+    tempError = 0
+    tempDelta = 0
+    _newListOfTempError = []
 
     print("Ini Hessian Matrix :", _matriksHessian)
 
-    for _, row in enumerate(_matriksHessian):
-        for _, var in enumerate(row):
-            temp = temp + (_alpha * var)
-        _listOfError.append(temp)
-    print("List Nilai Error", _listOfError)
+    for _ in range(len(_matriksHessian)):
+        _listofAlpha.append(0)
+
+    for i in range(0, 10):
+        for _, row in enumerate(_matriksHessian): # Mencari Ei
+            for j, var in enumerate(row):
+                tempError = tempError + (_listofAlpha[j] * var)
+
+        for j, itemError in enumerate(_newListOfTempError): # Mencari delta alpha
+            if not _listOfNewAlpha:
+                tempDelta = (min(max( (_gamma * (1 - itemError)), - 0), C - 0))
+            else:
+                tempDelta = (min(max( (_gamma * (1 - itemError)), -_listOfNewAlpha[j]), C - _listOfNewAlpha[j]))
+
+        if (len(_deltaAlpha) < len(_newListOfTempError)):
+            _deltaAlpha.append(tempDelta)
+        else:
+            _deltaAlpha[j] = tempDelta
+
+        if  not _listOfNewAlpha:
+            _alpha = [iAlpha + iDelta for iAlpha, iDelta in zip(_listOfNewAlpha, _deltaAlpha)]
+        else:
+            for k in range(len(_deltaAlpha)):
+                tempX = _alpha + _deltaAlpha[k]
+                _listOfNewAlpha.append(tempX)
+    
+    print("New list error: ", _newListOfTempError)
+    print("Delta Alpha: ", _deltaAlpha)
+    print("New Alpha: ", _listOfNewAlpha)
+                
+
+                
 
 
-    for _, var in enumerate(_listOfError):    
-        equ1 = max(_gamma * (1 - var), -_alpha)
-        equ2 = min(equ1, (C-_alpha))
-        _listOfDeltaAlpha.append(equ2)
-
-    print("List Deltha Alpha :", _listOfDeltaAlpha)
-
-    for i in range(len(_listOfDeltaAlpha)):
-        _newAlpha.append(_alpha + _listOfDeltaAlpha[i])
-
-    print(_newAlpha)
 
 
 
@@ -93,7 +112,7 @@ def main():
     filename = 'Result/TF_IDF.csv'
     splitting = 0.1
 
-    setAlpha = 0
+    mainAlpha = 0
     setGamma = 0.5
     setLambda = 0.5
     setEpisolon = 0.001
@@ -104,7 +123,7 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(vectorOfOpinion, valueOfSentiment, test_size=splitting, random_state=0)
     hessianMatrix = LinearKernel(x_train, y_train, setLambda)
     # hessianMatrix = LinearKernel(vectorOfOpinion, valueOfSentiment)
-    MeasuringAlpha(hessianMatrix, setAlpha, setGamma, C)
+    MeasuringAlpha(hessianMatrix, mainAlpha, setGamma, C)
     # print(hessianMatrix.shape)
     # print(valueOfSentiment)
 
