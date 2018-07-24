@@ -13,6 +13,7 @@ from sklearn import svm
 
 def ReadCSV(_filename):
     
+    idSentiment = []
     sentimentList = []
     valueOfSentimentAsrama = []
     valueOfSentimentKesehatan = []
@@ -28,6 +29,7 @@ def ReadCSV(_filename):
                 firstline = False
                 continue
             # print(row[1:-1])
+            idSentiment.append(int(row[0]))
             sentimentList.append(row[1:-6])
             valueOfSentimentAsrama.append(int(row[-5]))
             valueOfSentimentKesehatan.append(int(row[-4]))
@@ -41,7 +43,7 @@ def ReadCSV(_filename):
     
     sentimentList = np.array(sentimentList)
 
-    return sentimentList, valueOfSentimentAsrama, valueOfSentimentKesehatan, valueOfSentimentAsuransi, valueOfSentimentBeasiswa, valueOfSentimentKegiatanMahasiswa
+    return idSentiment, sentimentList, valueOfSentimentAsrama, valueOfSentimentKesehatan, valueOfSentimentAsuransi, valueOfSentimentBeasiswa, valueOfSentimentKegiatanMahasiswa
 
 def WriteToCSV(_filename, _listing):
     header = 'Index', 'Asrama', 'Kesehatan', 'Asuransi', 'Beasiswa', 'Kegiatan Mahasiswa'
@@ -60,12 +62,53 @@ def SVM_Classification(_vectorOfOpinion, _vectorOfSentiment, _testSize, _nameOfO
 
     predicted = clf.predict(xTest)
     accuracy = accuracy_score(yTest, predicted)*100
-    # print("-"*70)
+    
     print("Nilai akurasi %s =" %(_nameOfOpinion), accuracy)
-    # print("-"*70)
-    # print("Nilai akurasi %s dengan C:%d =" %(_nameOfOpinion, _C), accuracy)
+    
 
     return accuracy
+
+def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, _nameOfOpinion, _C, numFold):
+    # xTrain, xTest, yTrain, yTest = train_test_split(_vectorOfOpinion, _vectorOfSentiment, test_size=_testSize, random_state=1)
+
+    # accuracy = accuracy_score(yTest, predicted)*100
+    # print("panjang vecotr : ", _vectorOfOpinion[5])
+    subset_size = int(len(_idSentiment)/numFold)
+    tempSentiment = []
+
+    for i in range(numFold):
+        print("================= Iterasi ",i,"=====================")
+        idTest = _idSentiment[i * subset_size:][:subset_size]
+        idTrain =  _idSentiment[:i * subset_size] + _idSentiment[(i+1)*subset_size:]
+        
+        xTrain = []
+        xTest = []
+
+        yTrain = []
+        yTest = []
+
+        #ambil data training
+        for j in range(len(idTrain)):
+            xTrain.append(_vectorOfOpinion[idTrain[j]])
+            yTrain.append(_vectorOfSentiment[idTrain[j]])
+
+        #ambil data tsesting
+        for j in range(len(idTest)):
+            xTest.append(_vectorOfOpinion[idTest[j]])
+            yTest.append(_vectorOfSentiment[idTest[j]])
+
+        clf = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrain)
+
+        predicted = clf.predict(xTest)
+        for a, b in zip(idTest, predicted):
+            tempSentiment.insert(a, b)
+
+    # print(tempSentiment)
+    # print(_vectorOfSentiment)
+    accuracy = accuracy_score(_vectorOfSentiment, tempSentiment)
+    print(accuracy)
+
+    # return accuracy
 
 def KNN_Classification(_vectorOfOpinion, _vectorOfSentiment, _testSize, _nameOfOpinion, _K_Value):
     xTrain, xTest, yTrain, yTest = train_test_split(_vectorOfOpinion, _vectorOfSentiment, test_size=_testSize, random_state=1)
@@ -77,51 +120,17 @@ def KNN_Classification(_vectorOfOpinion, _vectorOfSentiment, _testSize, _nameOfO
     print("Nilai akurasi %s dengan K:%d =" %(_nameOfOpinion, _K_Value), accuracy)
     # print("-"*70)
 
-def SVM_Classification_With_CV(_vectorOfOpinion, _vectorOfSentiment, _nameOfOpinion, _C):
-    rs = ShuffleSplit(n_splits=10, test_size=0.1, random_state=0)
-
-    clf = svm.SVC(kernel='linear', C=_C)
-    result = cross_val_score(clf, _vectorOfOpinion, _vectorOfSentiment, cv=rs)
-    print('Akurasi SVM %s dengan CV:10 dan C:%d =' %(_nameOfOpinion, _C), result, 'Max Result =', max(result))
-
+ 
 
 def main():
     startTime = time.time()
     randomStateList = []
     print("Reading TF-IDF...", end='', flush=True)
-    # vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result/TF_IDF.csv') 
-    vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result All Sentiment 5000/TF_IDF.csv')   
+    # idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result/TF_IDF.csv') 
+    idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result All Sentiment 5000/TF_IDF_2.csv')   
     print('done')
 
-    # SVM_Classification_With_CV(vectorOfOpinion, sentAsrama, 'Asrama', 1)
-    # SVM_Classification(vectorOfOpinion, sentAsrama, 0.1, 'Asrama', 1)
-    
-    SVM_Classification(vectorOfOpinion, sentAsrama, 0.1, 'Asrama', 1)
-    
-    # for i in range(1, 11):
-
-    #     print('Nilai C = %d....' %(i), end='', flush=True)
-    #     a = SVM_Classification(vectorOfOpinion, sentAsrama, 0.1, 'Asrama', i, 12)
-    #     b = SVM_Classification(vectorOfOpinion, sentKesehatan, 0.1, 'Kesehatan', i, 12)
-    #     c = SVM_Classification(vectorOfOpinion, sentAsuransi, 0.1, 'Asuransi', i, 12)
-    #     d = SVM_Classification(vectorOfOpinion, sentBeasiswa, 0.1, 'Beasiswa', i, 12)
-    #     e = SVM_Classification(vectorOfOpinion, sentKegiatanM, 0.1, 'KegiatanM', i, 12)
-    #     seq = a, b, c, d, e
-    #     randomStateList.append(seq)
-    #     print('done')
-    
-    # for j in range(20, 110, 10):
-    #     print('Nilai C = %d....' %(j), end='', flush=True)
-    #     a = SVM_Classification(vectorOfOpinion, sentAsrama, 0.1, 'Asrama', j, 12)
-    #     b = SVM_Classification(vectorOfOpinion, sentKesehatan, 0.1, 'Kesehatan', j, 12)
-    #     c = SVM_Classification(vectorOfOpinion, sentAsuransi, 0.1, 'Asuransi', j, 12)
-    #     d = SVM_Classification(vectorOfOpinion, sentBeasiswa, 0.1, 'Beasiswa', j, 12)
-    #     e = SVM_Classification(vectorOfOpinion, sentKegiatanM, 0.1, 'KegiatanM', j, 12)
-    #     seq = a, b, c, d, e
-    #     randomStateList.append(seq)
-    #     print('done')
-
-    # WriteToCSV('Perbandingan Random State.csv', randomStateList)
+    SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, 'Asrama', 1, 10)
 
     print("--- %s menit ---" % ((time.time() - startTime)/60))
 
