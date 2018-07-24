@@ -47,12 +47,13 @@ def main():
     # print(vectorOfOpinion.shape)
     # xTrain, xTest, yTrain, yTest = train_test_split(vectorOfOpinion, vectorOfOpinion, test_size=0.4, random_state=0)
     xTrain, xTest, yTrain, yTest = train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
-
+    print(vectorOfOpinion)
+    print("===", valueOfSentiment)
     # print(xTrain.shape, xTest.shape)
     # print("="*100)
     # print(yTrain.shape, yTest.shape)
 
-    clf = svm.SVC(kernel='sigmoid', C=1).fit(xTrain, yTrain)
+    clf = svm.SVC(kernel='linear', C=1).fit(xTrain, yTrain)
     print(clf.score(xTest, yTest))
 
     # print(iris.data)

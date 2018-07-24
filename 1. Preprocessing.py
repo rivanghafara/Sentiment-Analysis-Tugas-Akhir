@@ -158,12 +158,13 @@ def TF_IDF(dataTF, dataIDF, tempWord, valueOfSentiment):
         reswriter = csv.writer(csvfile, delimiter=',', quotechar='|')
         reswriter.writerow(tempWord)
         print("Value of Sentiment :" ,valueOfSentiment)
-        # TF_IDF = []
         for k in range(len(dataTF)):
             rowjudul = "Tanggapan " + str(k+1)
             subChild = dataTF[k]
             sum_TFIDF = []
             temp = valueOfSentiment[k]
+            print(temp)
+            
             for i in range(len(subChild)):
                 if (i == 0):
                     sum_TFIDF.insert(0, rowjudul)
@@ -180,7 +181,7 @@ def TF_IDF(dataTF, dataIDF, tempWord, valueOfSentiment):
 def main():
     startTime = time.time()
     # GetExtraction('Dataset-Training/Dataset-Training-5000.csv')
-    GetExtraction('Dataset-Training/Dataset-Training-100-New.csv')
+    GetExtraction('Dataset-Training/Dataset-Training-100.csv')
     print("--- %s seconds ---" % (time.time() - startTime))
 
 
