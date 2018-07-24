@@ -1,3 +1,7 @@
-x = 1,2,3,4
+def youName(go=int):
+    if (go==1):
+        print('oye')
+    else:
+        print('else')
 
-print(x)
+youName(go=100)
