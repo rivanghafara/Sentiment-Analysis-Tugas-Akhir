@@ -45,7 +45,7 @@ def ReadCSV(_filename):
 
     return idSentiment, sentimentList, valueOfSentimentAsrama, valueOfSentimentKesehatan, valueOfSentimentAsuransi, valueOfSentimentBeasiswa, valueOfSentimentKegiatanMahasiswa
 
-def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _sentAsrama, _sentKesehatan, _sentAsuransi, _sentBeasiswa, _sentKegiatanM, _C, numFold):
+def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _sentAsrama, _sentKesehatan, _sentAsuransi, _sentBeasiswa, _sentKegiatanM, _C, _C2, numFold):
        
     subset_size = int(len(_idSentiment)/numFold)
     tempSentiment = []
@@ -100,7 +100,7 @@ def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _sentAsrama, _sen
         clfKesehatan = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainKesehatan)
         clfAsuransi = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainAsuransi)
         clfBeasiswa = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainBeasiswa)
-        clfKegiatanM = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainKegiatanM)
+        clfKegiatanM = svm.SVC(kernel='linear', C=_C2).fit(xTrain, yTrainKegiatanM)
 
         predictedAsrama = clf.predict(xTest)
         predictedKesehatan = clfKesehatan.predict(xTest)
@@ -116,18 +116,45 @@ def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _sentAsrama, _sen
             tempSentimentBeasiswa.insert(a, e)
             tempSentimentKegiatanM.insert(a, f)
 
-
-    
     # print(tempSentiment)
     # print(_sentAsrama)
-    accuracyAsrama = accuracy_score(_sentAsrama, tempSentiment)
-    accuracyKesehatan = accuracy_score(_sentKesehatan, tempSentimentKesehatan)
-    accuracyAsuransi = accuracy_score(_sentAsuransi, tempSentimentAsuransi)
-    accuracyBeasiswa = accuracy_score(_sentBeasiswa, tempSentimentBeasiswa)
-    accuracyKegiatanM = accuracy_score(_sentKegiatanM, tempSentimentKegiatanM)
+    # accuracyAsrama = accuracy_score(_sentAsrama, tempSentiment)
+    # accuracyKesehatan = accuracy_score(_sentKesehatan, tempSentimentKesehatan)
+    # accuracyAsuransi = accuracy_score(_sentAsuransi, tempSentimentAsuransi)
+    # accuracyBeasiswa = accuracy_score(_sentBeasiswa, tempSentimentBeasiswa)
+    # accuracyKegiatanM = accuracy_score(_sentKegiatanM, tempSentimentKegiatanM)
+    
+    posAsrama, negAsrama = Percentage(tempSentiment)
+    posKesehatan, negKesehatan = Percentage(tempSentimentKesehatan)
+    posAsuransi, negAsuransi = Percentage(tempSentimentAsuransi)
+    posBeasiswa, negBeasiswa = Percentage(tempSentimentBeasiswa)
+    posKegiatanM, negKegiatanM = Percentage(tempSentimentKegiatanM)
+    
+    perAsrama = posAsrama, negAsrama
+    perKesehatan = posKesehatan, negKesehatan
+    perAsuransi = posAsuransi, negAsuransi
+    perBeasiswa = posBeasiswa, negBeasiswa
+    perKegiatanM = posKegiatanM, negKegiatanM
+
+
+
     # print(accuracyAsrama)
     # print(_C, accuracyAsrama, accuracyKesehatan, accuracyAsuransi, accuracyBeasiswa, accuracyKegiatanM)
-    return accuracyAsrama, accuracyKesehatan, accuracyAsuransi, accuracyBeasiswa, accuracyKegiatanM
+    return perAsrama, perKesehatan, perAsuransi, perBeasiswa, perKegiatanM, len(_vectorOfOpinion)
+
+def Percentage(_predictedSentiment):
+    counter = 0
+    for _, var in enumerate(_predictedSentiment):
+        if (var == +1):
+            counter += 1
+        else:
+            continue
+        
+    posPercentage = counter/len(_predictedSentiment)
+    negPercentage = (len(_predictedSentiment)-counter)/len(_predictedSentiment)
+
+    return posPercentage, negPercentage
+
 
 def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, _nameOfOpinion, numFold, _K_Value):
     subset_size = int(len(_idSentiment)/numFold)
@@ -163,10 +190,12 @@ def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, _name
 
     # print(tempSentiment)
     # print(_vectorOfSentiment)
-    accuracy = accuracy_score(_vectorOfSentiment, tempSentiment)
+    # accuracy = accuracy_score(_vectorOfSentiment, tempSentiment)
+    posPercentage, negPercentage = Percentage(predicted)
+    getPercentage = posPercentage, negPercentage
     # print(accuracy)
 
-    return accuracy
+    return getPercentage
  
 def WriteToCSV(_filename, _listing):
     header = 'Index', 'Asrama', 'Kesehatan', 'Asuransi', 'Beasiswa', 'Kegiatan Mahasiswa'
@@ -180,19 +209,28 @@ def WriteToCSV(_filename, _listing):
 
 def main():
     startTime = time.time()
-    theResult = []
     print("Reading TF-IDF...", end='', flush=True)
     # idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result/TF_IDF.csv') 
     idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result All Sentiment 5000/TF_IDF_2.csv')
     print('done')
 
-    for i in range(3, 10):
-        a, b, c, d, e = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM, i, 10)
-        print("data ke-",i, a, b, c, d, e)
-        getData = i, a, b, c, d, e
-        theResult.append(getData)
 
-    WriteToCSV('Hasil Pengujian/SVM.csv', theResult)
+    # a, b, c, d, e, lenData = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM, 1, 2, 10)
+    # print(a, b, c, d, e, lenData)
+    result = KNN_Classification(idSentiment, vectorOfOpinion, sentKesehatan, 'Kesehatan', 10, 11)
+    resultAsuransi = KNN_Classification(idSentiment, vectorOfOpinion, sentAsuransi, 'Asuransi', 10, 11)
+    resultBeasiswa = KNN_Classification(idSentiment, vectorOfOpinion, sentBeasiswa, 'Beasiswa', 10, 11)
+    resultKegiatanM = KNN_Classification(idSentiment, vectorOfOpinion, sentKegiatanM, 'KegiatanM', 10, 11)
+    print(result)
+    print(resultAsuransi)
+    print(resultBeasiswa)
+    print(resultKegiatanM)
+    
+
+    # getData = a, b, c, d, e
+    # theResult.append(getData)
+
+    # WriteToCSV('Hasil Pengujian/SVM.csv', theResult)
     print("--- %s menit ---" % ((time.time() - startTime)/60))
 
 main()

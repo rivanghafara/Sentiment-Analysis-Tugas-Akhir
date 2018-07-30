@@ -1,7 +1,4 @@
-def youName(go=int):
-    if (go==1):
-        print('oye')
-    else:
-        print('else')
+x = 1, 2
 
-youName(go=100)
+a = tuple(x)
+print(a)
