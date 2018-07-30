@@ -45,12 +45,14 @@ def ReadCSV(_filename):
 
     return idSentiment, sentimentList, valueOfSentimentAsrama, valueOfSentimentKesehatan, valueOfSentimentAsuransi, valueOfSentimentBeasiswa, valueOfSentimentKegiatanMahasiswa
 
-
-
-def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, _nameOfOpinion, _C, numFold):
-   
+def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _sentAsrama, _sentKesehatan, _sentAsuransi, _sentBeasiswa, _sentKegiatanM, _C, numFold):
+       
     subset_size = int(len(_idSentiment)/numFold)
     tempSentiment = []
+    tempSentimentKesehatan = []
+    tempSentimentAsuransi = []
+    tempSentimentBeasiswa = []
+    tempSentimentKegiatanM = []
 
     for i in range(numFold):
         # print("================= Iterasi ",i,"=====================")
@@ -60,33 +62,74 @@ def SVM_Classification_With_CV(_idSentiment, _vectorOfOpinion, _vectorOfSentimen
         xTrain = []
         xTest = []
 
-        yTrain = []
-        yTest = []
+        yTrainAsrama = []
+        yTestAsrama = []
+
+        yTrainKesehatan = []
+        yTestKesehatan = []
+
+        yTrainAsuransi = []
+        yTestAsuransi = []
+
+        yTrainBeasiswa = []
+        yTestBeasiswa = []
+
+        yTrainKegiatanM = []
+        yTestKegiatanM = []
 
         #ambil data training
         for j in range(len(idTrain)):
             xTrain.append(_vectorOfOpinion[idTrain[j]])
-            yTrain.append(_vectorOfSentiment[idTrain[j]])
+            yTrainAsrama.append(_sentAsrama[idTrain[j]])
+            yTrainKesehatan.append(_sentKesehatan[idTrain[j]])
+            yTrainAsuransi.append(_sentAsuransi[idTrain[j]])
+            yTrainBeasiswa.append(_sentBeasiswa[idTrain[j]])
+            yTrainKegiatanM.append(_sentKegiatanM[idTrain[j]])
+
 
         #ambil data tsesting
-        for j in range(len(idTest)):
-            xTest.append(_vectorOfOpinion[idTest[j]])
-            yTest.append(_vectorOfSentiment[idTest[j]])
+        for k in range(len(idTest)):
+            xTest.append(_vectorOfOpinion[idTest[k]])
+            yTestAsrama.append(_sentAsrama[idTest[k]])
+            yTestKesehatan.append(_sentKesehatan[idTest[k]])
+            yTestAsuransi.append(_sentAsuransi[idTest[k]])
+            yTestBeasiswa.append(_sentBeasiswa[idTest[k]])
+            yTestKegiatanM.append(_sentKegiatanM[idTest[k]])
 
-        clf = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrain)
+        clf = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainAsrama)
+        clfKesehatan = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainKesehatan)
+        clfAsuransi = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainAsuransi)
+        clfBeasiswa = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainBeasiswa)
+        clfKegiatanM = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrainKegiatanM)
 
-        predicted = clf.predict(xTest)
-        for a, b in zip(idTest, predicted):
+        predictedAsrama = clf.predict(xTest)
+        predictedKesehatan = clfKesehatan.predict(xTest)
+        predictedAsuransi = clfAsuransi.predict(xTest)
+        predictedBeasiswa = clfBeasiswa.predict(xTest)
+        predictedKegiatanM = clfKegiatanM.predict(xTest)
+        
+        
+        for a, b, c, d, e, f in zip(idTest, predictedAsrama, predictedKesehatan, predictedAsuransi, predictedBeasiswa, predictedKegiatanM):
             tempSentiment.insert(a, b)
+            tempSentimentKesehatan.insert(a, c)
+            tempSentimentAsuransi.insert(a, d)
+            tempSentimentBeasiswa.insert(a, e)
+            tempSentimentKegiatanM.insert(a, f)
 
+
+    
     # print(tempSentiment)
-    # print(_vectorOfSentiment)
-    accuracy = accuracy_score(_vectorOfSentiment, tempSentiment)
-    # print(accuracy)
+    # print(_sentAsrama)
+    accuracyAsrama = accuracy_score(_sentAsrama, tempSentiment)
+    accuracyKesehatan = accuracy_score(_sentKesehatan, tempSentimentKesehatan)
+    accuracyAsuransi = accuracy_score(_sentAsuransi, tempSentimentAsuransi)
+    accuracyBeasiswa = accuracy_score(_sentBeasiswa, tempSentimentBeasiswa)
+    accuracyKegiatanM = accuracy_score(_sentKegiatanM, tempSentimentKegiatanM)
+    # print(accuracyAsrama)
+    # print(_C, accuracyAsrama, accuracyKesehatan, accuracyAsuransi, accuracyBeasiswa, accuracyKegiatanM)
+    return accuracyAsrama, accuracyKesehatan, accuracyAsuransi, accuracyBeasiswa, accuracyKegiatanM
 
-    return accuracy
-
-def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, numFold, _nameOfOpinion, _K_Value):
+def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, _nameOfOpinion, numFold, _K_Value):
     subset_size = int(len(_idSentiment)/numFold)
     tempSentiment = []
 
@@ -99,7 +142,7 @@ def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, numFo
         xTest = []
 
         yTrain = []
-        yTest = []
+        yTestAsrama = []
 
         #ambil data training
         for j in range(len(idTrain)):
@@ -109,7 +152,7 @@ def KNN_Classification(_idSentiment, _vectorOfOpinion, _vectorOfSentiment, numFo
         #ambil data tsesting
         for j in range(len(idTest)):
             xTest.append(_vectorOfOpinion[idTest[j]])
-            yTest.append(_vectorOfSentiment[idTest[j]])
+            yTestAsrama.append(_vectorOfSentiment[idTest[j]])
 
         # clf = svm.SVC(kernel='linear', C=_C).fit(xTrain, yTrain)
         neigh = KNeighborsClassifier(n_neighbors=_K_Value).fit(xTrain, yTrain)
@@ -130,38 +173,26 @@ def WriteToCSV(_filename, _listing):
     with open(_filename, 'w', newline='') as file:
         reswrite = csv.writer(file, delimiter=',')
         reswrite.writerow(header)
-        for i, var in enumerate(_listing):
+        for _, var in enumerate(_listing):
             var = list(var)
-            var.insert(0, 'C = %s' %(i))
+            # var.insert(0, 'C = %s' %(i))
             reswrite.writerow(var)
 
 def main():
     startTime = time.time()
+    theResult = []
     print("Reading TF-IDF...", end='', flush=True)
-    idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result/TF_IDF.csv') 
-    # idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result All Sentiment 5000/TF_IDF_2.csv')
+    # idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result/TF_IDF.csv') 
+    idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM = ReadCSV('Result All Sentiment 5000/TF_IDF_2.csv')
     print('done')
 
-    for i in range(1, 10):
-        print('Loop ke-%d....', end='', flush=True)
-        a = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, 'Asrama', i, 10)
-        b = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentKesehatan, 'KessentKesehatan', i, 10)
-        c = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsuransi, 'AsusentAsuransi', i, 10)
-        d = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentBeasiswa, 'BeasentBeasiswa', i, 10)
-        e = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentKegiatanM, 'Kegiatan Mahasiswa', i, 10)
-        seq = a, b, c, d, e
-        WriteToCSV('Hasil Pengujian/SVM.csv', seq)
-        print('done')
-    
-    # for j in range(10, 110, 10):
-    #     print('Loop ke-%d....', end='', flush=True)
-    #     SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, 'Asrama', i, 10)
-    #     SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentKesehatan, 'KessentKesehatan', i, 10)
-    #     SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsuransi, 'AsusentAsuransi', i, 10)
-    #     SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentBeasiswa, 'BeasentBeasiswa', i, 10)
-    #     SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentKegiatanM, 'Kegiatan Mahasiswa', i, 10)
-    #     print('done')
+    for i in range(3, 10):
+        a, b, c, d, e = SVM_Classification_With_CV(idSentiment, vectorOfOpinion, sentAsrama, sentKesehatan, sentAsuransi, sentBeasiswa, sentKegiatanM, i, 10)
+        print("data ke-",i, a, b, c, d, e)
+        getData = i, a, b, c, d, e
+        theResult.append(getData)
 
+    WriteToCSV('Hasil Pengujian/SVM.csv', theResult)
     print("--- %s menit ---" % ((time.time() - startTime)/60))
 
 main()
