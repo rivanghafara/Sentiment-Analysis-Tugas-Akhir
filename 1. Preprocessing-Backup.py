@@ -101,8 +101,8 @@ def GetExtraction(dataset):
 
 def GetTF(cleanDataset, listString, tempWord):
     countDF = []
-    # with open('Result/TF.csv', 'w', newline='') as csvfile:
-    with open('Result All Sentiment 5000/TF.csv', 'w', newline='') as csvfile:
+    with open('Result/TF.csv', 'w', newline='') as csvfile:
+    # with open('Result Untuk Jurnal/TF.csv', 'w', newline='') as csvfile:
         reswriter = csv.writer(csvfile, delimiter=',', quotechar='|')
         reswriter.writerow(tempWord)  # write 1 row
         TF = []
@@ -134,8 +134,8 @@ def GetTF(cleanDataset, listString, tempWord):
 
 
 def GetIDF(cleanDataset, listDF, tempWord):
-    # with open('Result/IDF.csv', 'w', newline='') as csvfile:
-    with open('Result All Sentiment 5000/IDF.csv', 'w', newline='') as csvfile:
+    with open('Result/IDF.csv', 'w', newline='') as csvfile:
+    # with open('Result Untuk Jurnal/IDF.csv', 'w', newline='') as csvfile:
         reswriter = csv.writer(csvfile, delimiter=',', quotechar='|')
         reswriter.writerow(tempWord)  # write 1 row
         tempDF = []
@@ -168,8 +168,8 @@ def GetIDF(cleanDataset, listDF, tempWord):
 
 
 def TF_IDF(dataTF, dataIDF, tempWord, valueOfSentimentAsrama, valueOfSentimentKesehatan, valueOfSentimentAsuransi, valueOfSentimentBeasiswa, valueOfSentimentKegiatanM):
-    # with open('Result/TF_IDF.csv', 'w', newline='') as csvfile:
-    with open('Result All Sentiment 5000/TF_IDF.csv', 'w', newline='') as csvfile:
+    with open('Result/TF_IDF.csv', 'w', newline='') as csvfile:
+    # with open('Result Untuk Jurnal/TF_IDF.csv', 'w', newline='') as csvfile:
         reswriter = csv.writer(csvfile, delimiter=',', quotechar='|')
         reswriter.writerow(tempWord)
         for k in range(len(dataTF)):
@@ -202,8 +202,8 @@ def TF_IDF(dataTF, dataIDF, tempWord, valueOfSentimentAsrama, valueOfSentimentKe
 
 def main():
     startTime = time.time()
-    GetExtraction('Dataset-Training/Dataset-Training-5000-All-Sentiment.csv')
-    # GetExtraction('Dataset-Training/Dataset-Training-100.csv')
+    # GetExtraction('Dataset-Training/Contoh-Dataset-Untuk-Di-Jurnal.csv')
+    GetExtraction('Dataset-Training/Dataset-Training-100.csv')
     print("--- %s menit ---" % ((time.time() - startTime)/60))
 
 main()
